@@ -17,6 +17,20 @@
 #  endif
 #endif
 
+// Particle fixes
+#if defined(PARTICLE)
+  #include "Particle.h"
+  inline void yield(void) {}
+  #if PLATFORM_ID == PLATFORM_PHOTON
+    #define STM32F10X_MD
+    // #define __CM3_REGS
+  #elif PLATFORM_ID == PLATFORM_ARGON
+    #define NRF52_SERIES // required for FastLED to detect the Argon
+  #endif
+//   #define FASTLED_FORCE_SOFTWARE_PINS
+  #undef ARDUINO
+#endif
+
 #ifndef __PROG_TYPES_COMPAT__
 #define __PROG_TYPES_COMPAT__
 #endif

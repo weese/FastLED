@@ -25,7 +25,7 @@ FL_PROGMEM static uint8_t const p[] = {
     222, 114,  67,  29,  24,  72, 243, 141, 128, 195,  78,  66, 215,  61, 156, 180,
     151};
 
-#if FASTLED_NOISE_ALLOW_AVERAGE_TO_OVERFLOW == 1
+#if defined(FASTLED_NOISE_ALLOW_AVERAGE_TO_OVERFLOW) && FASTLED_NOISE_ALLOW_AVERAGE_TO_OVERFLOW == 1
 #define AVG15(U,V) (((U)+(V)) >> 1)
 #else
 // See if we should use the inlined avg15 for AVR with MUL instruction

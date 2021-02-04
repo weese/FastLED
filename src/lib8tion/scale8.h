@@ -295,7 +295,7 @@ LIB8STATIC_ALWAYS_INLINE void nscale8_video_LEAVING_R1_DIRTY( uint8_t & i, fract
 /// Clean up the r1 register after a series of *LEAVING_R1_DIRTY calls
 LIB8STATIC_ALWAYS_INLINE void cleanup_R1()
 {
-#if CLEANUP_R1_AVRASM == 1
+#if defined(CLEANUP_R1_AVRASM) && CLEANUP_R1_AVRASM == 1
     // Restore r1 to "0"; it's expected to always be that
     asm volatile( "clr __zero_reg__  \n\t" : : : "r1" );
 #endif

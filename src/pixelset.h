@@ -7,6 +7,8 @@
 #include <stdlib.h>
 #endif
 
+FASTLED_NAMESPACE_BEGIN
+
 /////  Represents a set of CRGB led objects.  Provides the [] array operator, and works like a normal array in that case.
 /////  This should be kept in sync with the set of functions provided by CRGB as well as functions in colorutils.  Note
 /////  that a pixel set is a window into another set of led data, it is not its own set of led data.
@@ -164,94 +166,94 @@ public:
 
     inline CPixelView & fill_rainbow(uint8_t initialhue, uint8_t deltahue=5) {
         if(dir >= 0) {
-            ::fill_rainbow(leds,len,initialhue,deltahue);
+            FASTLED_NAMESPACE::fill_rainbow(leds,len,initialhue,deltahue);
         } else {
-            ::fill_rainbow(leds+len+1,-len,initialhue,deltahue);
+            FASTLED_NAMESPACE::fill_rainbow(leds+len+1,-len,initialhue,deltahue);
         }
         return *this;
     }
 
     inline CPixelView & fill_gradient(const CHSV & startcolor, const CHSV & endcolor, TGradientDirectionCode directionCode  = SHORTEST_HUES) {
         if(dir >= 0) {
-            ::fill_gradient(leds,len,startcolor, endcolor, directionCode);
+            FASTLED_NAMESPACE::fill_gradient(leds,len,startcolor, endcolor, directionCode);
         } else {
-            ::fill_gradient(leds + len + 1, (-len), endcolor, startcolor, directionCode);
+            FASTLED_NAMESPACE::fill_gradient(leds + len + 1, (-len), endcolor, startcolor, directionCode);
         }
         return *this;
     }
 
     inline CPixelView & fill_gradient(const CHSV & c1, const CHSV & c2, const CHSV &  c3, TGradientDirectionCode directionCode = SHORTEST_HUES) {
         if(dir >= 0) {
-            ::fill_gradient(leds, len, c1, c2, c3, directionCode);
+            FASTLED_NAMESPACE::fill_gradient(leds, len, c1, c2, c3, directionCode);
         } else {
-            ::fill_gradient(leds + len + 1, -len, c3, c2, c1, directionCode);
+            FASTLED_NAMESPACE::fill_gradient(leds + len + 1, -len, c3, c2, c1, directionCode);
         }
         return *this;
     }
 
     inline CPixelView & fill_gradient(const CHSV & c1, const CHSV & c2, const CHSV & c3, const CHSV & c4, TGradientDirectionCode directionCode = SHORTEST_HUES) {
         if(dir >= 0) {
-            ::fill_gradient(leds, len, c1, c2, c3, c4, directionCode);
+            FASTLED_NAMESPACE::fill_gradient(leds, len, c1, c2, c3, c4, directionCode);
         } else {
-            ::fill_gradient(leds + len + 1, -len, c4, c3, c2, c1, directionCode);
+            FASTLED_NAMESPACE::fill_gradient(leds + len + 1, -len, c4, c3, c2, c1, directionCode);
         }
         return *this;
     }
 
     inline CPixelView & fill_gradient_RGB(const PIXEL_TYPE & startcolor, const PIXEL_TYPE & endcolor, TGradientDirectionCode directionCode  = SHORTEST_HUES) {
         if(dir >= 0) {
-            ::fill_gradient_RGB(leds,len,startcolor, endcolor);
+            FASTLED_NAMESPACE::fill_gradient_RGB(leds,len,startcolor, endcolor);
         } else {
-            ::fill_gradient_RGB(leds + len + 1, (-len), endcolor, startcolor);
+            FASTLED_NAMESPACE::fill_gradient_RGB(leds + len + 1, (-len), endcolor, startcolor);
         }
         return *this;
     }
 
     inline CPixelView & fill_gradient_RGB(const PIXEL_TYPE & c1, const PIXEL_TYPE & c2, const PIXEL_TYPE &  c3) {
         if(dir >= 0) {
-            ::fill_gradient_RGB(leds, len, c1, c2, c3);
+            FASTLED_NAMESPACE::fill_gradient_RGB(leds, len, c1, c2, c3);
         } else {
-            ::fill_gradient_RGB(leds + len + 1, -len, c3, c2, c1);
+            FASTLED_NAMESPACE::fill_gradient_RGB(leds + len + 1, -len, c3, c2, c1);
         }
         return *this;
     }
 
     inline CPixelView & fill_gradient_RGB(const PIXEL_TYPE & c1, const PIXEL_TYPE & c2, const PIXEL_TYPE & c3, const PIXEL_TYPE & c4) {
         if(dir >= 0) {
-            ::fill_gradient_RGB(leds, len, c1, c2, c3, c4);
+            FASTLED_NAMESPACE::fill_gradient_RGB(leds, len, c1, c2, c3, c4);
         } else {
-            ::fill_gradient_RGB(leds + len + 1, -len, c4, c3, c2, c1);
+            FASTLED_NAMESPACE::fill_gradient_RGB(leds + len + 1, -len, c4, c3, c2, c1);
         }
         return *this;
     }
 
-    inline CPixelView & nblend(const PIXEL_TYPE & overlay, fract8 amountOfOverlay) { for(iterator pixel = begin(), _end = end(); pixel != _end; ++pixel) { ::nblend((*pixel), overlay, amountOfOverlay); } return *this; }
-    inline CPixelView & nblend(const CPixelView & rhs, fract8 amountOfOverlay) { for(iterator pixel = begin(), rhspixel = rhs.begin(), _end = end(), rhs_end = rhs.end(); (pixel != _end) && (rhspixel != rhs_end); ++pixel, ++rhspixel) { ::nblend((*pixel), (*rhspixel), amountOfOverlay); } return *this; }
+    inline CPixelView & nblend(const PIXEL_TYPE & overlay, fract8 amountOfOverlay) { for(iterator pixel = begin(), _end = end(); pixel != _end; ++pixel) { FASTLED_NAMESPACE::nblend((*pixel), overlay, amountOfOverlay); } return *this; }
+    inline CPixelView & nblend(const CPixelView & rhs, fract8 amountOfOverlay) { for(iterator pixel = begin(), rhspixel = rhs.begin(), _end = end(), rhs_end = rhs.end(); (pixel != _end) && (rhspixel != rhs_end); ++pixel, ++rhspixel) { FASTLED_NAMESPACE::nblend((*pixel), (*rhspixel), amountOfOverlay); } return *this; }
 
     // Note: only bringing in a 1d blur, not sure 2d blur makes sense when looking at sub arrays
     inline CPixelView & blur1d(fract8 blur_amount) {
         if(dir >= 0) {
-            ::blur1d(leds, len, blur_amount);
+            FASTLED_NAMESPACE::blur1d(leds, len, blur_amount);
         } else {
-            ::blur1d(leds + len + 1, -len, blur_amount);
+            FASTLED_NAMESPACE::blur1d(leds + len + 1, -len, blur_amount);
         }
         return *this;
     }
 
     inline CPixelView & napplyGamma_video(float gamma) {
         if(dir >= 0) {
-            ::napplyGamma_video(leds, len, gamma);
+            FASTLED_NAMESPACE::napplyGamma_video(leds, len, gamma);
         } else {
-            ::napplyGamma_video(leds + len + 1, -len, gamma);
+            FASTLED_NAMESPACE::napplyGamma_video(leds + len + 1, -len, gamma);
         }
         return *this;
     }
 
     inline CPixelView & napplyGamma_video(float gammaR, float gammaG, float gammaB) {
         if(dir >= 0) {
-            ::napplyGamma_video(leds, len, gammaR, gammaG, gammaB);
+            FASTLED_NAMESPACE::napplyGamma_video(leds, len, gammaR, gammaG, gammaB);
         } else {
-            ::napplyGamma_video(leds + len + 1, -len, gammaR, gammaG, gammaB);
+            FASTLED_NAMESPACE::napplyGamma_video(leds + len + 1, -len, gammaR, gammaG, gammaB);
         }
         return *this;
     }
@@ -302,5 +304,7 @@ public:
     CRGBArray() : CPixelView<CRGB>(rawleds, SIZE) {}
     using CPixelView::operator=;
 };
+
+FASTLED_NAMESPACE_END
 
 #endif

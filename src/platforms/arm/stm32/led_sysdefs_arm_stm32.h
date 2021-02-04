@@ -8,6 +8,7 @@
 #define FASTLED_NAMESPACE_BEGIN namespace NSFastLED {
 #define FASTLED_NAMESPACE_END }
 #define FASTLED_USING_NAMESPACE using namespace NSFastLED;
+#define FASTLED_NAMESPACE NSFastLED
 
 // reusing/abusing cli/sei defs for due
 #define cli()  __disable_irq(); __disable_fault_irq();
