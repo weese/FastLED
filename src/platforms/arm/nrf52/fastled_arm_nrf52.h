@@ -1,6 +1,10 @@
 #ifndef __INC_FASTLED_ARM_NRF52_H
 #define __INC_FASTLED_ARM_NRF52_H
 
+#include "FreeRTOS.h"
+#include "fast_pin.h"
+// #include <nrf5_sdk/external/freertos/config/FreeRTOSConfig.h>
+
 #include "led_sysdefs_arm_nrf52.h"
 #include "arbiter_nrf52.h"
 #include "fastpin_arm_nrf52.h"

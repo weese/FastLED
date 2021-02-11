@@ -1,6 +1,7 @@
 #ifndef __FASTPIN_ARM_NRF52_H
 #define __FASTPIN_ARM_NRF52_H
 
+FASTLED_NAMESPACE_BEGIN
 
 /*
 //
@@ -186,5 +187,7 @@ public:
 #include "fastpin_arm_nrf52_variants.h"
 
 #define HAS_HARDWARE_PIN_SUPPORT
+
+FASTLED_NAMESPACE_END
 
 #endif // #ifndef __FASTPIN_ARM_NRF52_H

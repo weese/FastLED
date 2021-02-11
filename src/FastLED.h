@@ -18,18 +18,29 @@
 #endif
 
 // Particle fixes
-#if defined(PARTICLE)
+// #if defined(PARTICLE)
   #include "Particle.h"
-  inline void yield(void) {}
-  #if PLATFORM_ID == PLATFORM_PHOTON
-    #define STM32F10X_MD
+  #if (defined(PLATFORM_PHOTON) && PLATFORM_ID == PLATFORM_PHOTON) \
+   || (defined(PLATFORM_PHOTON_DEV) && PLATFORM_ID == PLATFORM_PHOTON_DEV) \
+   || (defined(PLATFORM_PHOTON_PRODUCTION) && PLATFORM_ID == PLATFORM_PHOTON_PRODUCTION)
+	#define STM32F10X_MD
     // #define __CM3_REGS
+    #undef ARDUINO
+    inline void yield(void) {}
   #elif PLATFORM_ID == PLATFORM_ARGON
     #define NRF52_SERIES // required for FastLED to detect the Argon
+	#define NRF_SPIM_H__
+	#ifndef ARDUINO
+	#define ARDUINO 10800
+	#endif
   #endif
-//   #define FASTLED_FORCE_SOFTWARE_PINS
-  #undef ARDUINO
-#endif
+    // #define FASTLED_FORCE_SOFTWARE_PINS
+    #define FASTLED_FORCE_SOFTWARE_SPI
+	#define FASTLED_NAMESPACE_BEGIN namespace NSFastLED {
+	#define FASTLED_NAMESPACE_END }
+	#define FASTLED_USING_NAMESPACE using namespace NSFastLED;
+	#define FASTLED_NAMESPACE NSFastLED
+// #endif
 
 #ifndef __PROG_TYPES_COMPAT__
 #define __PROG_TYPES_COMPAT__

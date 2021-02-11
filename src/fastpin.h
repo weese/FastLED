@@ -145,7 +145,7 @@ public:
 
 #endif
 
-/// The simplest level of Pin class.  This relies on runtime functions durinig initialization to get the port/pin mask for the pin.  Most
+/// The simplest level of Pin class.  This relies on runtime functions during initialization to get the port/pin mask for the pin.  Most
 /// of the accesses involve references to these static globals that get set up.  This won't be the fastest set of pin operations, but it
 /// will provide pin level access on pretty much all arduino environments.  In addition, it includes some methods to help optimize access in
 /// various ways.  Namely, the versions of hi, lo, and fastset that take the port register as a passed in register variable (saving a global
@@ -261,6 +261,7 @@ template<uint8_t port> struct __FL_PORT_INFO {
 	static const char *portName() { return #L; } \
 	typedef BASE __t_baseType;  \
 	static const void *portAddr() { return (void*)&__t_baseType::r(); } };
+
 
 #define _FL_DEFINE_PORT3(L, LC, BASE) template<> struct __FL_PORT_INFO<LC> { \
 	static bool hasPort() { return 1; } \

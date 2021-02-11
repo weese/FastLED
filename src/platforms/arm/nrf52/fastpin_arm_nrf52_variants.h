@@ -719,5 +719,89 @@
     _DEFPIN_ARM_IDENTITY_P0(31); // P0.31
 #endif // defined(ARDUINO_GENERIC)
 
+// Particle Boards (Photon, Argon).
+// https://docs.particle.io/datasheets/wi-fi/photon-datasheet/
+// https://docs.particle.io/datasheets/wi-fi/argon-datasheet/
+#if defined(SPARK)
 
+  #if (defined(PLATFORM_PHOTON) && PLATFORM_ID == PLATFORM_PHOTON) \
+   || (defined(PLATFORM_PHOTON_DEV) && PLATFORM_ID == PLATFORM_PHOTON_DEV) \
+   || (defined(PLATFORM_PHOTON_PRODUCTION) && PLATFORM_ID == PLATFORM_PHOTON_PRODUCTION)
+
+// _IO32(A); _IO32(B); _IO32(C); _IO32(D); _IO32(E); _IO32(F); _IO32(G);
+    #define MAX_PIN 19
+    _DEFPIN_ARM(0, 7, B);
+    _DEFPIN_ARM(1, 6, B);
+    _DEFPIN_ARM(2, 5, B);
+    _DEFPIN_ARM(3, 4, B);
+    _DEFPIN_ARM(4, 3, B);
+    _DEFPIN_ARM(5, 15, A);
+    _DEFPIN_ARM(6, 14, A);
+    _DEFPIN_ARM(7, 13, A);
+    _DEFPIN_ARM(10, 5, C);
+    _DEFPIN_ARM(11, 3, C);
+    _DEFPIN_ARM(12, 2, C);
+    _DEFPIN_ARM(13, 5, A);
+    _DEFPIN_ARM(14, 6, A);
+    _DEFPIN_ARM(15, 7, A);
+    _DEFPIN_ARM(16, 4, A);
+    _DEFPIN_ARM(17, 0, A);
+    _DEFPIN_ARM(18, 10, A);
+    _DEFPIN_ARM(19, 9, A);
+    _DEFPIN_ARM(20, 7, C);
+
+  #elif PLATFORM_ID == PLATFORM_ARGON
+    #define MAX_PIN 19
+    _FL_DEFPIN(0, 26, 1);
+    _FL_DEFPIN(1, 27, 1);
+    _FL_DEFPIN(2, 1, 1);
+    _FL_DEFPIN(3, 2, 1);
+    _FL_DEFPIN(4, 8, 1);
+    _FL_DEFPIN(5, 10, 1);
+    _FL_DEFPIN(6, 11, 1);
+    _FL_DEFPIN(7, 12, 1);
+    _FL_DEFPIN(8, 3, 1);
+    _FL_DEFPIN(9, 6, 0);
+    _FL_DEFPIN(10, 8, 0);
+    _FL_DEFPIN(11, 14, 1);
+    _FL_DEFPIN(12, 13, 1);
+    _FL_DEFPIN(13, 15, 1);
+    _FL_DEFPIN(14, 3, 0);
+    _FL_DEFPIN(15, 4, 0);
+    _FL_DEFPIN(16, 28, 0);
+    _FL_DEFPIN(17, 29, 0);
+    _FL_DEFPIN(18, 30, 0);
+    _FL_DEFPIN(19, 31, 0);
+
+  #else
+    #define MAX_PIN 19
+    _DEFPIN_ARM(0, 7, B);
+    _DEFPIN_ARM(1, 6, B);
+    _DEFPIN_ARM(2, 5, B);
+    _DEFPIN_ARM(3, 4, B);
+    _DEFPIN_ARM(4, 3, B);
+    _DEFPIN_ARM(5, 15, A);
+    _DEFPIN_ARM(6, 14, A);
+    _DEFPIN_ARM(7, 13, A);
+    _DEFPIN_ARM(8, 8, A);
+    _DEFPIN_ARM(9, 9, A);
+    _DEFPIN_ARM(10, 0, A);
+    _DEFPIN_ARM(11, 1, A);
+    _DEFPIN_ARM(12, 4, A);
+    _DEFPIN_ARM(13, 5, A);
+    _DEFPIN_ARM(14, 6, A);
+    _DEFPIN_ARM(15, 7, A);
+    _DEFPIN_ARM(16, 0, B);
+    _DEFPIN_ARM(17, 1, B);
+    _DEFPIN_ARM(18, 3, A);
+    _DEFPIN_ARM(19, 2, A);
+
+#endif
+
+#define SPI_DATA 15
+#define SPI_CLOCK 13
+
+#define HAS_HARDWARE_PIN_SUPPORT
+
+#endif
 #endif // __FASTPIN_ARM_NRF52_VARIANTS_H

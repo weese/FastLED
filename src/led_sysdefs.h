@@ -5,6 +5,11 @@
 
 #include "fastled_config.h"
 
+// Arduino.h needed for convenience functions digitalPinToPort/BitMask/portOutputRegister and the pinMode methods.
+#ifdef ARDUINO
+#include <Arduino.h>
+#endif
+
 #if defined(NRF51) || defined(__RFduino__) || defined (__Simblee__)
 #include "platforms/arm/nrf51/led_sysdefs_arm_nrf51.h"
 #elif defined(NRF52_SERIES)
@@ -58,11 +63,6 @@
 #define FASTLED_NAMESPACE_END
 #define FASTLED_USING_NAMESPACE
 #define FASTLED_NAMESPACE
-#endif
-
-// Arduino.h needed for convenience functions digitalPinToPort/BitMask/portOutputRegister and the pinMode methods.
-#ifdef ARDUINO
-#include <Arduino.h>
 #endif
 
 #define CLKS_PER_US (F_CPU/1000000)

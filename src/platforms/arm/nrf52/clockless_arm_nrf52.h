@@ -4,10 +4,10 @@
 #if defined(NRF52_SERIES)
 
 
-//FASTLED_NAMESPACE_BEGIN
+FASTLED_NAMESPACE_BEGIN
 
 #define FASTLED_HAS_CLOCKLESS 1
-#define FASTLED_NRF52_MAXIMUM_PIXELS_PER_STRING 144 // TODO: Figure out how to safely let this be calller-defined....
+#define FASTLED_NRF52_MAXIMUM_PIXELS_PER_STRING 144 // TODO: Figure out how to safely let this be caller-defined....
 
 // nRF52810 has a single PWM peripheral (PWM0)
 // nRF52832 has three PWM peripherals (PWM0, PWM1, PWM2)
@@ -384,7 +384,7 @@ CMinWait<_WAIT_TIME_MICROSECONDS> ClocklessController<_DATA_PIN, _T1, _T2, _T3, 
 //         color correction, dithering, etc. ....
 */
 
-//FASTLED_NAMESPACE_END
+FASTLED_NAMESPACE_END
 
 #endif // NRF52_SERIES
 #endif // __INC_CLOCKLESS_ARM_NRF52
