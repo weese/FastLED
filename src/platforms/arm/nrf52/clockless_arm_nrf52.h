@@ -7,7 +7,7 @@
 FASTLED_NAMESPACE_BEGIN
 
 #define FASTLED_HAS_CLOCKLESS 1
-#define FASTLED_NRF52_MAXIMUM_PIXELS_PER_STRING 144 // TODO: Figure out how to safely let this be caller-defined....
+#define FASTLED_NRF52_MAXIMUM_PIXELS_PER_STRING 256 // TODO: Figure out how to safely let this be caller-defined....
 
 // nRF52810 has a single PWM peripheral (PWM0)
 // nRF52832 has three PWM peripherals (PWM0, PWM1, PWM2)
@@ -58,6 +58,7 @@ private:
     }
     FASTLED_NRF52_INLINE_ATTRIBUTE static void startPwmPlayback_InitializePwmInstance(NRF_PWM_Type * pwm) {
 
+        debugFastLED("pin: %i", FastPin<_DATA_PIN>::nrf_pin());
         // Pins must be set before enabling the peripheral
         pwm->PSEL.OUT[0] = FastPin<_DATA_PIN>::nrf_pin();
         pwm->PSEL.OUT[1] = NRF_PWM_PIN_NOT_CONNECTED;
@@ -163,7 +164,6 @@ public:
         }
     }
 
-
     virtual void init() {
         FASTLED_NRF52_DEBUGPRINT("Clockless Timings:\n");
         FASTLED_NRF52_DEBUGPRINT("    T0H == %d", _T0H);
@@ -196,8 +196,7 @@ public:
         int32_t    remainingSequenceElements = _PWM_BUFFER_COUNT;
         uint16_t * e = s_SequenceBuffer;
         uint32_t size_needed = pixels.size(); // count of pixels
-        size_needed *= (8 + _XTRA0);          // bits per pixel
-        size_needed *= 2;                     // each bit takes two bytes
+        size_needed *= _BITS_PER_PIXEL;       // bits per pixel
 
         if (size_needed > _PWM_BUFFER_COUNT) {
             // TODO: assert()?
@@ -264,6 +263,9 @@ public:
         // mark the sequence as being in-use
         __sync_fetch_and_or(&s_SequenceBufferInUse, 1);
 
+        debugFastLED("cpu %i pwm %i", F_CPU/1000, CLOCKLESS_FREQUENCY/1000);
+
+        debugFastLED("startPwmPlayback %i",bytesToSend);
         startPwmPlayback_InitializePinState();
         startPwmPlayback_InitializePwmInstance(pwm);
         startPwmPlayback_ConfigurePwmSequence(pwm);

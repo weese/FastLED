@@ -20,6 +20,10 @@
 // Particle fixes
 // #if defined(PARTICLE)
   #include "Particle.h"
+
+	// Log message to cloud, message is a printf-formatted string
+	#define debugFastLED(...) { Serial.println( String::format(__VA_ARGS__) ); Particle.publish( "FASTLED", String::format(__VA_ARGS__) ); }
+
   #if (defined(PLATFORM_PHOTON) && PLATFORM_ID == PLATFORM_PHOTON) \
    || (defined(PLATFORM_PHOTON_DEV) && PLATFORM_ID == PLATFORM_PHOTON_DEV) \
    || (defined(PLATFORM_PHOTON_PRODUCTION) && PLATFORM_ID == PLATFORM_PHOTON_PRODUCTION)
@@ -30,6 +34,7 @@
   #elif PLATFORM_ID == PLATFORM_ARGON
     #define NRF52_SERIES // required for FastLED to detect the Argon
 	#define NRF_SPIM_H__
+	#define __INC_CPP_COMPAT_H
 	#ifndef ARDUINO
 	#define ARDUINO 10800
 	#endif

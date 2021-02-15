@@ -751,21 +751,26 @@
     _DEFPIN_ARM(20, 7, C);
 
   #elif PLATFORM_ID == PLATFORM_ARGON
+    #if defined(__FASTPIN_ARM_NRF52_VARIANT_FOUND)
+        #error "Cannot define more than one board at a time"
+    #else
+        #define __FASTPIN_ARM_NRF52_VARIANT_FOUND
+    #endif
     #define MAX_PIN 19
     _FL_DEFPIN(0, 26, 1);
     _FL_DEFPIN(1, 27, 1);
-    _FL_DEFPIN(2, 1, 1);
-    _FL_DEFPIN(3, 2, 1);
-    _FL_DEFPIN(4, 8, 1);
-    _FL_DEFPIN(5, 10, 1);
-    _FL_DEFPIN(6, 11, 1);
-    _FL_DEFPIN(7, 12, 1);
-    _FL_DEFPIN(8, 3, 1);
+    _FL_DEFPIN(2, 33, 1);
+    _FL_DEFPIN(3, 34, 1);
+    _FL_DEFPIN(4, 40, 1);
+    _FL_DEFPIN(5, 42, 1);
+    _FL_DEFPIN(6, 43, 1);
+    _FL_DEFPIN(7, 44, 1);
+    _FL_DEFPIN(8, 35, 1);
     _FL_DEFPIN(9, 6, 0);
     _FL_DEFPIN(10, 8, 0);
-    _FL_DEFPIN(11, 14, 1);
-    _FL_DEFPIN(12, 13, 1);
-    _FL_DEFPIN(13, 15, 1);
+    _FL_DEFPIN(11, 46, 1);
+    _FL_DEFPIN(12, 45, 1);
+    _FL_DEFPIN(13, 47, 1);
     _FL_DEFPIN(14, 3, 0);
     _FL_DEFPIN(15, 4, 0);
     _FL_DEFPIN(16, 28, 0);

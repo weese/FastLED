@@ -3,7 +3,6 @@
 
 #include "FreeRTOS.h"
 #include "fast_pin.h"
-// #include <nrf5_sdk/external/freertos/config/FreeRTOSConfig.h>
 
 #include "led_sysdefs_arm_nrf52.h"
 #include "arbiter_nrf52.h"

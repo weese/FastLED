@@ -10,6 +10,7 @@
 // even though CPU is at 64MHz, use the 8MHz-defined timings because...
 // PWM module   runs at 16MHz
 // SPI0..2      runs at  8MHz
+// #define CLOCKLESS_FREQUENCY (16000000 >> NRFX_PWM_DEFAULT_CONFIG_BASE_CLOCK)
 #define CLOCKLESS_FREQUENCY 16000000 // the NRF52 has EasyDMA for PWM module at 16MHz
 
 #ifndef F_TIMER
@@ -46,7 +47,8 @@ typedef __IO uint32_t RwReg;
 #define cli()  __disable_irq()
 #define sei()  __enable_irq()
 
-#define FASTLED_NRF52_DEBUGPRINT(format, ...)\
+#define FASTLED_NRF52_DEBUGPRINT debugFastLED
+// #define FASTLED_NRF52_DEBUGPRINT(format, ...)\
 //    do { FastLED_NRF52_DebugPrint(format, ##__VA_ARGS__); } while(0);
 
 #endif // __LED_SYSDEFS_ARM_NRF52
