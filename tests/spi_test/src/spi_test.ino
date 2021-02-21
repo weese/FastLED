@@ -21,25 +21,33 @@ SerialLogHandler logHandler;
 #define BUFF_LENGTH 3840        /**< Transfer length. */
 
 // corresponds to SPI1
-static const nrfx_spim_t m_spim2 = NRFX_SPIM_INSTANCE(2);
-const nrfx_spim_t *spim = &m_spim2;
+// static const nrfx_spim_t m_spim2 = NRFX_SPIM_INSTANCE(2);
+// const nrfx_spim_t *spim = &m_spim2;
 
 static uint8_t m_tx_buf[BUFF_LENGTH];  /**< TX buffer. */
 
 static volatile bool spi_xfer_in_progress = false;  /**< Flag used to indicate that SPI instance completed the transfer. */
 
-void spi_event_handler(nrfx_spim_evt_t const * p_event, void * p_context)
-{
-    if(p_event->type == NRFX_SPIM_EVENT_DONE)
-    {
-    	spi_xfer_in_progress = false;
-    }
-    else
-    {
-        NRF_LOG_DEBUG("Wrong Event\n");
-        // Something is wrong
-    }
+void spi_dma_user_callback() {
 }
+
+// void spi_event_handler(nrfx_spim_evt_t const * p_event, void * p_context)
+// {
+//     if(p_event->type == NRFX_SPIM_EVENT_DONE)
+//     {
+//     	spi_xfer_in_progress = false;
+//     }
+//     else
+//     {
+//         NRF_LOG_DEBUG("Wrong Event\n");
+//         // Something is wrong
+//     }
+// }
+
+// template <HAL_SPI_Interface Interface>
+// HAL_SPI_Interface getInterface(SpiProxy<Interface> const &) {
+//     return Interface;
+// }
 
 void burst_write(uint8_t reg_addr, uint8_t *reg_data, uint32_t cnt)
 {
@@ -48,25 +56,32 @@ void burst_write(uint8_t reg_addr, uint8_t *reg_data, uint32_t cnt)
     m_tx_buf[0] = 0x81;
     m_tx_buf[BUFF_LENGTH-1] = 0x20;
 
-    nrfx_spim_xfer_desc_t xfer = NRFX_SPIM_XFER_TRX(m_tx_buf, BUFF_LENGTH, NULL, 0);
-    uint32_t flags = NRF_DRV_SPI_FLAG_NO_XFER_EVT_HANDLER;
-    nrfx_spim_xfer(spim, &xfer, flags);  
-    spi_xfer_in_progress = true;
+    SPI1.transfer(m_tx_buf, NULL, BUFF_LENGTH, spi_dma_user_callback);
+
+    // nrfx_spim_xfer_desc_t xfer = NRFX_SPIM_XFER_TRX(m_tx_buf, BUFF_LENGTH, NULL, 0);
+    // uint32_t flags = NRF_DRV_SPI_FLAG_NO_XFER_EVT_HANDLER;
+    // nrfx_spim_xfer(spim, &xfer, flags);  
+    // spi_xfer_in_progress = true;
 }
 
 int8_t spi_init(void)
-{    
-    nrfx_spim_config_t spi_config = NRFX_SPIM_DEFAULT_CONFIG;
-    spi_config.ss_pin    = NRFX_SPIM_PIN_NOT_USED;		//I control the CS pin 
-    spi_config.miso_pin  = NRFX_SPIM_PIN_NOT_USED;
-    spi_config.mosi_pin  = get_nrf_pin_num(SPI1_MOSI_PIN);
-    spi_config.sck_pin   = get_nrf_pin_num(SPI1_SCK_PIN);
-    spi_config.mode      = NRF_SPIM_MODE_3;
-    spi_config.frequency = NRF_SPIM_FREQ_4M;
-    APP_ERROR_CHECK(nrfx_spim_init(spim, &spi_config, spi_event_handler, NULL));
+{
+    SPI1.begin(SPI_MODE_MASTER);
+    SPI1.setClockSpeed(4, MHZ);
+    SPI1.setDataMode(SPI_MODE3);
+    SPI1.setBitOrder(MSBFIRST);
+
+    // nrfx_spim_config_t spi_config = NRFX_SPIM_DEFAULT_CONFIG;
+    // spi_config.ss_pin    = NRFX_SPIM_PIN_NOT_USED;		//I control the CS pin 
+    // spi_config.miso_pin  = NRFX_SPIM_PIN_NOT_USED;
+    // spi_config.mosi_pin  = get_nrf_pin_num(SPI1_MOSI_PIN);
+    // spi_config.sck_pin   = get_nrf_pin_num(SPI1_SCK_PIN);
+    // spi_config.mode      = NRF_SPIM_MODE_3;
+    // spi_config.frequency = NRF_SPIM_FREQ_4M;
+    // APP_ERROR_CHECK(nrfx_spim_init(spim, &spi_config, spi_event_handler, NULL));
     NRF_LOG_INFO("SPI1 Master initialised.\r\n");
 
-    spi_xfer_in_progress = false; 
+    // spi_xfer_in_progress = false; 
 
     return 0;
 }
@@ -74,7 +89,6 @@ int8_t spi_init(void)
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
 void setup() {
-    SPI1.end();
 
     Serial.begin(115200);
     delay(1400);
@@ -91,8 +105,6 @@ void loop() {
         __SEV();
         __WFE();
         // Serial.print('.');
-        delay(300);
-        // if (!spi_xfer_in_progress) {
+        // delay(300);
             burst_write(0x55, NULL, 10);
-        // }
 }
