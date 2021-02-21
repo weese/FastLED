@@ -3,7 +3,8 @@
     "C_Cpp.default.configurationProvider": "particle.particle-vscode-core",
     "cortex-debug.openocdPath": "${command:particle.getDebuggerOpenocdPath}",
     "files.associations": {
-        "*.ino": "cpp"
+        "*.ino": "cpp",
+        "nrf_drv_ppi.c": "cpp"
     },
     "particle.firmwareVersion": "1.5.2",
     "particle.targetDevice": "potty3",

@@ -5,17 +5,18 @@
 SerialLogHandler logHandler;
 
 #define SPI1_SS_PIN D5
-#define SPI1_SCK_PIN D4
-#define SPI1_MISO_PIN D6
-#define SPI1_MOSI_PIN D7
+#define SPI1_SCK_PIN D2
+#define SPI1_MOSI_PIN D3
+#define SPI1_MISO_PIN D4
 
 #undef NRF_LOG_INFO
 #define NRF_LOG_INFO Serial.printf
 
-#define SPI_INSTANCE  0 /**< SPI instance index. */
 #define BUFF_LENGTH 2000        /**< Transfer length. */
+// int i = SPI2;
 
-static const nrf_drv_spi_t spi = NRF_DRV_SPI_INSTANCE(SPI_INSTANCE);  /**< SPI instance. */
+const nrfx_spim_t *spim = m_spi_map[1].master; //&SPI1.instance().
+
 static uint8_t       m_tx_buf[BUFF_LENGTH];  /**< TX buffer. */
 static uint8_t       m_rx_buf[BUFF_LENGTH];   /**< RX buffer. */
 
@@ -84,7 +85,7 @@ static void burst_setup()
     APP_ERROR_CHECK(err_code);
     NRF_LOG_INFO("ppi allocated\n");
 
-    spi_end_evt = nrf_drv_spi_end_event_get(&spi);
+    spi_end_evt = nrfx_spim_end_event_get(spim);
 
     // Configure the PPI to count the trasnsactions on the TIMER
     err_code = nrf_drv_ppi_channel_assign(ppi_channel_spi, spi_end_evt, timer_count_task);
@@ -110,7 +111,7 @@ static void burst_transfer_enable()
     nrf_drv_timer_enable(&timer);
 
     // Configure short between spi end event and spi start task
-    nrf_spim_shorts_enable(spi.u.spim.p_reg, NRF_SPIM_SHORT_END_START_MASK);
+    nrf_spim_shorts_enable(spim->p_reg, NRF_SPIM_SHORT_END_START_MASK);
 
     imu_select();
 }
@@ -120,7 +121,7 @@ static void burst_transfer_disable()
     ret_code_t err_code;
 
     // Configure short between spi end event and spi start task
-    nrf_spim_shorts_disable(spi.u.spim.p_reg, NRF_SPIM_SHORT_END_START_MASK);
+    nrf_spim_shorts_disable(spim->p_reg, NRF_SPIM_SHORT_END_START_MASK);
 
     err_code = nrf_drv_ppi_channel_disable(ppi_channel_spi);
     APP_ERROR_CHECK(err_code);
@@ -134,9 +135,9 @@ static void burst_transfer_disable()
     burst_completed = true;
 }
 
-void spi_event_handler(nrf_drv_spi_evt_t const * p_event, void * p_context)
+void spi_event_handler(nrfx_spim_evt_t const * p_event, void * p_context)
 {
-    if(p_event->type == NRF_DRV_SPI_EVENT_DONE)
+    if(p_event->type == NRFX_SPIM_EVENT_DONE)
     {
     	spi_xfer_done = true;
     }
@@ -149,18 +150,21 @@ void spi_event_handler(nrf_drv_spi_evt_t const * p_event, void * p_context)
 
 int8_t bmi160_bus_burst_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t cnt)
 {
-    m_tx_buf[0] = reg_addr;
+    for (int i = 0; i<BUFF_LENGTH;++i)
+        m_tx_buf[i] = 0x55;
+    m_tx_buf[0] = 0x81;
+    m_tx_buf[BUFF_LENGTH-1] = 0x81;
 
-    nrf_drv_spi_xfer_desc_t xfer = NRF_DRV_SPI_XFER_TRX(m_tx_buf, 1, reg_data, 255);
+    nrfx_spim_xfer_desc_t xfer = NRFX_SPIM_XFER_TRX(m_tx_buf, BUFF_LENGTH, reg_data, 1);
     uint32_t flags = NRF_DRV_SPI_FLAG_HOLD_XFER |
                      NRF_DRV_SPI_FLAG_REPEATED_XFER |
                      NRF_DRV_SPI_FLAG_RX_POSTINC  |
                      NRF_DRV_SPI_FLAG_NO_XFER_EVT_HANDLER;
-    nrf_drv_spi_xfer(&spi, &xfer, flags);  
+    nrfx_spim_xfer(spim, &xfer, flags);  
 
     burst_transfer_enable();
 
-    nrf_spim_task_trigger(spi.u.spim.p_reg, NRF_SPIM_TASK_START);
+    nrf_spim_task_trigger(spim->p_reg, NRF_SPIM_TASK_START);
 
     while(!burst_completed){
         __WFE();
@@ -182,14 +186,14 @@ int8_t spi_init(void)
     APP_ERROR_CHECK(err_code);
     NRF_LOG_INFO("ppi initialised\n");
     
-    nrf_drv_spi_config_t spi_config = NRF_DRV_SPI_DEFAULT_CONFIG;
-    spi_config.ss_pin   = NRF_DRV_SPI_PIN_NOT_USED;		//I control the CS pin 
-    spi_config.miso_pin = SPI1_MISO_PIN;
-    spi_config.mosi_pin = SPI1_MOSI_PIN;
-    spi_config.sck_pin  = SPI1_SCK_PIN;                               
-    spi_config.frequency    = NRF_DRV_SPI_FREQ_8M;
-    APP_ERROR_CHECK(nrf_drv_spi_init(&spi, &spi_config, spi_event_handler, NULL));
-    NRF_LOG_INFO("SPI1 Master initialised.\r\n");
+    // nrfx_spim_config_t spi_config = NRFX_SPIM_DEFAULT_CONFIG;
+    // spi_config.ss_pin   = NRF_DRV_SPI_PIN_NOT_USED;		//I control the CS pin 
+    // spi_config.miso_pin = SPI1_MISO_PIN;
+    // spi_config.mosi_pin = SPI1_MOSI_PIN;
+    // spi_config.sck_pin  = SPI1_SCK_PIN;                               
+    // spi_config.frequency    = NRF_SPIM_FREQ_8M;
+    // APP_ERROR_CHECK(nrfx_spim_init(spim, &spi_config, spi_event_handler, NULL));
+    // NRF_LOG_INFO("SPI1 Master initialised.\r\n");
 
     // Reset rx buffer and transfer done flag
     memset(m_rx_buf, 0, BUFF_LENGTH);
@@ -207,10 +211,8 @@ int8_t spi_init(void)
 SYSTEM_MODE(SEMI_AUTOMATIC);
 
 void setup() {
-  SPI.lock();
-  SPI.begin(SPI_MODE_MASTER);
-
-    digitalWrite(D7, LOW);
+    SPI1.begin(SPI_MODE_MASTER);
+    spim = m_spi_map[1].master;
 
     Serial.begin(115200);
     delay(1400);
