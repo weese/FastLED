@@ -1,3 +1,10 @@
+// Read:
+// https://devzone.nordicsemi.com/f/nordic-q-a/19891/transfer-more-than-255-bytes-with-spi-master-on-nrf52
+// https://devzone.nordicsemi.com/f/nordic-q-a/14193/confusion-with-list-in-easydma
+// https://devzone.nordicsemi.com/f/nordic-q-a/44849/best-practices-to-nrf_drv_spi_transfer-sequentially
+// 
+// This code is based on https://gist.github.com/alessandro-montanari/1708d549be50ee37e62dfc5f493b3fa9
+
 // #define PARTICLE_NO_ARDUINO_COMPATIBILITY
 
 #include "nrf.h"
@@ -12,24 +19,24 @@ SerialLogHandler logHandler;
 #undef NRF_LOG_INFO
 #define NRF_LOG_INFO Serial.printf
 
-#define BUFF_LENGTH 2000        /**< Transfer length. */
+#define BUFF_LENGTH 3840        /**< Transfer length. */
 
 // corresponds to SPI1
 static const nrfx_spim_t m_spim2 = NRFX_SPIM_INSTANCE(2);
 const nrfx_spim_t *spim = &m_spim2;
 
 static uint8_t       m_tx_buf[BUFF_LENGTH];  /**< TX buffer. */
-static uint8_t       m_rx_buf[BUFF_LENGTH];   /**< RX buffer. */
+static uint8_t       m_rx_buf[4];   /**< RX buffer. */
 
 static volatile bool burst_completed = false;
 static volatile bool spi_xfer_done = false;  /**< Flag used to indicate that SPI instance completed the transfer. */
 
 // PPI resrources
-nrf_ppi_channel_t ppi_channel_spi;
-nrf_ppi_channel_t ppi_channel_timer;
+// nrf_ppi_channel_t ppi_channel_spi;
+// nrf_ppi_channel_t ppi_channel_timer;
 
 // Timer for burst read
-const nrf_drv_timer_t timer = NRF_DRV_TIMER_INSTANCE(1);
+// const nrf_drv_timer_t timer = NRF_DRV_TIMER_INSTANCE(1);
 
 // void app_error_handler(uint32_t error_code, uint32_t line_num, const uint8_t * p_file_name) {
 //     Serial.printf("Error %i in line %i of file %s\n", error_code, line_num, p_file_name);
@@ -45,58 +52,58 @@ void imu_deselect()
     nrf_gpio_pin_set(SPI1_SS_PIN);
 }
 
-void my_timer_event_handler(nrf_timer_event_t event_type, void* p_context)
-{
-    switch (event_type)
-    {
-        case NRF_TIMER_EVENT_COMPARE0:
-            burst_transfer_disable();
-            break;
+// void timer_event_handler(nrf_timer_event_t event_type, void* p_context)
+// {
+//     switch (event_type)
+//     {
+//         case NRF_TIMER_EVENT_COMPARE0:
+//             burst_transfer_disable();
+//             break;
 
-        default:
-            //Do nothing.
-            break;
-    }
-}
+//         default:
+//             //Do nothing.
+//             break;
+//     }
+// }
 
-static void burst_setup()
-{
-    uint32_t spi_end_evt;
-    uint32_t timer_count_task;
-    uint32_t timer_cc_event;
-    ret_code_t err_code;       
+// static void burst_setup()
+// {
+//     uint32_t spi_end_evt;
+//     uint32_t timer_count_task;
+//     uint32_t timer_cc_event;
+//     ret_code_t err_code;       
 
-    //Configure timer
-    nrf_drv_timer_config_t timer_cfg = NRF_DRV_TIMER_DEFAULT_CONFIG;
-    timer_cfg.mode = NRF_TIMER_MODE_COUNTER;
-    err_code = nrf_drv_timer_init(&timer, &timer_cfg, my_timer_event_handler);
-    APP_ERROR_CHECK(err_code);
+//     //Configure timer
+//     nrf_drv_timer_config_t timer_cfg = NRF_DRV_TIMER_DEFAULT_CONFIG;
+//     timer_cfg.mode = NRF_TIMER_MODE_COUNTER;
+//     err_code = nrf_drv_timer_init(&timer, &timer_cfg, timer_event_handler);
+//     APP_ERROR_CHECK(err_code);
 
-    // Compare event after 4 transmissions
-    nrf_drv_timer_extended_compare(&timer, NRF_TIMER_CC_CHANNEL0, 4, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, true);
+//     // Compare event after 4 transmissions
+//     nrf_drv_timer_extended_compare(&timer, NRF_TIMER_CC_CHANNEL0, 4, NRF_TIMER_SHORT_COMPARE0_CLEAR_MASK, true);
 
-    timer_count_task = nrf_drv_timer_task_address_get(&timer, NRF_TIMER_TASK_COUNT);
-    timer_cc_event = nrf_drv_timer_event_address_get(&timer,  NRF_TIMER_EVENT_COMPARE0);
-    NRF_LOG_INFO("timer configured\n");
+//     timer_count_task = nrf_drv_timer_task_address_get(&timer, NRF_TIMER_TASK_COUNT);
+//     timer_cc_event = nrf_drv_timer_event_address_get(&timer,  NRF_TIMER_EVENT_COMPARE0);
+//     NRF_LOG_INFO("timer configured\n");
 
-    // allocate PPI channels for hardware
-    err_code = nrf_drv_ppi_channel_alloc(&ppi_channel_spi);
-    APP_ERROR_CHECK(err_code);
-    err_code = nrf_drv_ppi_channel_alloc(&ppi_channel_timer);
-    APP_ERROR_CHECK(err_code);
-    NRF_LOG_INFO("ppi allocated\n");
+//     // allocate PPI channels for hardware
+//     err_code = nrf_drv_ppi_channel_alloc(&ppi_channel_spi);
+//     APP_ERROR_CHECK(err_code);
+//     err_code = nrf_drv_ppi_channel_alloc(&ppi_channel_timer);
+//     APP_ERROR_CHECK(err_code);
+//     NRF_LOG_INFO("ppi allocated\n");
 
-    spi_end_evt = nrfx_spim_end_event_get(spim);
+//     spi_end_evt = nrfx_spim_end_event_get(spim);
 
-    // Configure the PPI to count the trasnsactions on the TIMER
-    err_code = nrf_drv_ppi_channel_assign(ppi_channel_spi, spi_end_evt, timer_count_task);
-    APP_ERROR_CHECK(err_code);
+//     // Configure the PPI to count the trasnsactions on the TIMER
+//     err_code = nrf_drv_ppi_channel_assign(ppi_channel_spi, spi_end_evt, timer_count_task);
+//     APP_ERROR_CHECK(err_code);
 
-    // Configure another PPI to stop the SPI when 4 transactions have been completed
-    err_code = nrf_drv_ppi_channel_assign(ppi_channel_timer, timer_cc_event, NRF_SPIM_TASK_STOP);
-    APP_ERROR_CHECK(err_code);
-    NRF_LOG_INFO("ppi configured\n");
-}
+//     // Configure another PPI to stop the SPI when 4 transactions have been completed
+//     err_code = nrf_drv_ppi_channel_assign(ppi_channel_timer, timer_cc_event, NRF_SPIM_TASK_STOP);
+//     APP_ERROR_CHECK(err_code);
+//     NRF_LOG_INFO("ppi configured\n");
+// }
 
 static void burst_transfer_enable()
 {
@@ -104,15 +111,15 @@ static void burst_transfer_enable()
 
     burst_completed = false;
 
-    err_code = nrf_drv_ppi_channel_enable(ppi_channel_spi);
-    APP_ERROR_CHECK(err_code);
-    err_code = nrf_drv_ppi_channel_enable(ppi_channel_timer);
-    APP_ERROR_CHECK(err_code);
+    // err_code = nrf_drv_ppi_channel_enable(ppi_channel_spi);
+    // APP_ERROR_CHECK(err_code);
+    // err_code = nrf_drv_ppi_channel_enable(ppi_channel_timer);
+    // APP_ERROR_CHECK(err_code);
 
-    nrf_drv_timer_enable(&timer);
+    // nrf_drv_timer_enable(&timer);
 
-    // Configure short between spi end event and spi start task
-    nrf_spim_shorts_enable(spim->p_reg, NRF_SPIM_SHORT_END_START_MASK);
+    // // Configure short between spi end event and spi start task
+    // nrf_spim_shorts_enable(spim->p_reg, NRF_SPIM_SHORT_END_START_MASK);
 
     imu_select();
 }
@@ -121,15 +128,15 @@ static void burst_transfer_disable()
 {
     ret_code_t err_code;
 
-    // Configure short between spi end event and spi start task
-    nrf_spim_shorts_disable(spim->p_reg, NRF_SPIM_SHORT_END_START_MASK);
+    // // Configure short between spi end event and spi start task
+    // nrf_spim_shorts_disable(spim->p_reg, NRF_SPIM_SHORT_END_START_MASK);
 
-    err_code = nrf_drv_ppi_channel_disable(ppi_channel_spi);
-    APP_ERROR_CHECK(err_code);
-    err_code = nrf_drv_ppi_channel_disable(ppi_channel_timer);
-    APP_ERROR_CHECK(err_code);
+    // err_code = nrf_drv_ppi_channel_disable(ppi_channel_spi);
+    // APP_ERROR_CHECK(err_code);
+    // err_code = nrf_drv_ppi_channel_disable(ppi_channel_timer);
+    // APP_ERROR_CHECK(err_code);
     
-    nrf_drv_timer_disable(&timer);
+    // nrf_drv_timer_disable(&timer);
 
     imu_deselect();
 
@@ -167,11 +174,11 @@ int8_t bmi160_bus_burst_read(uint8_t reg_addr, uint8_t *reg_data, uint32_t cnt)
 
     nrf_spim_task_trigger(spim->p_reg, NRF_SPIM_TASK_START);
 
-    while(!burst_completed){
-        __WFE();
-    }
+    // while(!burst_completed){
+    //     __WFE();
+    // }
     spi_xfer_done = false;
-    burst_completed = false;
+    // burst_completed = false;
 
     return 0;
 }
@@ -183,9 +190,9 @@ int8_t spi_init(void)
     nrf_gpio_cfg_output(SPI1_SS_PIN);
     imu_deselect();
     
-    err_code = nrf_drv_ppi_init();
-    APP_ERROR_CHECK(err_code);
-    NRF_LOG_INFO("ppi initialised\n");
+    // err_code = nrf_drv_ppi_init();
+    // APP_ERROR_CHECK(err_code);
+    // NRF_LOG_INFO("ppi initialised\n");
     
     nrfx_spim_config_t spi_config = NRFX_SPIM_DEFAULT_CONFIG;
     spi_config.ss_pin    = NRFX_SPIM_PIN_NOT_USED;		//I control the CS pin 
@@ -198,7 +205,7 @@ int8_t spi_init(void)
     NRF_LOG_INFO("SPI1 Master initialised.\r\n");
 
     // Reset rx buffer and transfer done flag
-    memset(m_rx_buf, 0, BUFF_LENGTH);
+    // memset(m_rx_buf, 0, BUFF_LENGTH);
     memset(m_tx_buf, 0, BUFF_LENGTH);
     spi_xfer_done = false; 
 
@@ -220,7 +227,7 @@ void setup() {
     Serial.println("check1");
 
     spi_init();
-    burst_setup();
+    // burst_setup();
 }
 
 void loop() {
@@ -232,5 +239,5 @@ void loop() {
         __WFE();
         Serial.print('.');
         delay(300);
-        bmi160_bus_burst_read(0x55, m_rx_buf, 1000);
+        bmi160_bus_burst_read(0x55, m_rx_buf, 10);
 }
