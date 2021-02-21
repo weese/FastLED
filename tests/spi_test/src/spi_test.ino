@@ -212,6 +212,7 @@ SYSTEM_MODE(SEMI_AUTOMATIC);
 
 void setup() {
     SPI1.begin(SPI_MODE_MASTER);
+    SPI1.setClockSpeed(4, MHZ);
     spim = m_spi_map[1].master;
 
     Serial.begin(115200);
