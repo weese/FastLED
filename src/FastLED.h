@@ -32,9 +32,16 @@
     #undef ARDUINO
     inline void yield(void) {}
   #elif PLATFORM_ID == PLATFORM_ARGON
-    #define NRF52_SERIES // required for FastLED to detect the Argon
-	#define NRF_SPIM_H__
-	#define __INC_CPP_COMPAT_H
+	#undef STATIC_ASSERT
+	#undef SS
+	#undef SCK
+	#undef MISO
+	#undef MOSI
+	#undef CHG
+
+//     #define NRF52_SERIES // required for FastLED to detect the Argon
+	// #define NRF_SPIM_H__
+	// #define __INC_CPP_COMPAT_H
 	#ifndef ARDUINO
 	#define ARDUINO 10800
 	#endif

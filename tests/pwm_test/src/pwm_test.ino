@@ -1,19 +1,13 @@
 #include <stdio.h>
 #include <string.h>
-#include "nrfx_pwm.h"
 
-#include "nrf_pwm.h"
+#include "nrf.h"
+// #include "app_util_platform.h"
+// #include "app_error.h"
+// #include "nrfx_clock.h"
 
-#include "app_util_platform.h"
-#include "app_error.h"
-#include "nrfx_clock.h"
-
-#include "nrf_log.h"
-#include "nrf_log_ctrl.h"
-#include "nrf_log_default_backends.h"
-
-#include "FreeRTOS.h"
-#include "fast_pin.h"
+// #include "FreeRTOS.h"
+// #include "fast_pin.h"
 
 
 static nrfx_pwm_t m_pwm0 = NRFX_PWM_INSTANCE(0);
