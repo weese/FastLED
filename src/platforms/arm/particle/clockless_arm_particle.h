@@ -58,24 +58,24 @@ protected:
     }
 
     template<int BITS> __attribute__ ((always_inline)) inline static void writeBits(register uint8_t & b)  {
-        for(register uint32_t i = BITS-1; i > 0; --i) {
+        for(register uint32_t i = BITS; i != 0; --i) {
             *mLast |= 0xff >> mLastBit;
             if (b & 0x80) {
-                mLastBit += T0H;
-                while (mLastBit >= 8) {
-                    *++mLast = 0xff;
-                    mLastBit -= 8;
-                }
-                *mLast &= 0xff >> mLastBit;
-                mLastBit += TOP - T0H;
-            } else {
                 mLastBit += T1H;
                 while (mLastBit >= 8) {
                     *++mLast = 0xff;
                     mLastBit -= 8;
                 }
-                *mLast &= 0xff >> mLastBit;
+                *mLast &= ~(0xff >> mLastBit);
                 mLastBit += TOP - T1H;
+            } else {
+                mLastBit += T0H;
+                while (mLastBit >= 8) {
+                    *++mLast = 0xff;
+                    mLastBit -= 8;
+                }
+                *mLast &= ~(0xff >> mLastBit);
+                mLastBit += TOP - T0H;
             }
             mLast += mLastBit >> 3;
             mLastBit &= 7;
