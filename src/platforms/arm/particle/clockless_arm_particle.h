@@ -33,10 +33,10 @@ private:
     static const uint8_t  TOP = ((uint16_t)(T1+T2+T3));
 
     static const uint8_t  BITS_PER_PIXEL   = (8 + XTRA0) * 3; // NOTE: 3 means RGB only...
-    static const uint16_t PWM_BUFFER_COUNT = (TOP * BITS_PER_PIXEL * FASTLED_PARTICLE_MAXIMUM_PIXELS_PER_STRING + 7) / 8;
+    static const uint16_t PWM_BUFFER_SIZE = (TOP * BITS_PER_PIXEL * FASTLED_PARTICLE_MAXIMUM_PIXELS_PER_STRING + 7) / 8;
 
     // may as well be static, as can only attach one LED string per DATA_PIN....
-    static uint8_t mBuffer[PWM_BUFFER_COUNT];
+    static uint8_t mBuffer[PWM_BUFFER_SIZE];
     static uint8_t *mLast;
     static uint8_t mLastBit;
 
@@ -77,8 +77,10 @@ protected:
                 *mLast &= ~(0xff >> mLastBit);
                 mLastBit += TOP - T0H;
             }
-            mLast += mLastBit >> 3;
-            mLastBit &= 7;
+            while (mLastBit >= 8) {
+                *++mLast = 0;
+                mLastBit -= 8;
+            }
             b <<= 1;
         }
     }
@@ -91,11 +93,12 @@ protected:
         mLast = mBuffer;
         mLastBit = 0;
 
+        ASSERT(!pixels.has(FASTLED_PARTICLE_MAXIMUM_PIXELS_PER_STRING + 1))
+
         // Setup the pixel controller and load/scale the first byte
         pixels.preStepFirstByteDithering();
         register uint8_t b = pixels.loadAndScale0();
 
-        DWT->CYCCNT = 0;
         while(pixels.has(1)) {
             pixels.stepDithering();
 
@@ -121,7 +124,7 @@ uint8_t* ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_
 template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
 uint8_t ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mLastBit = 0;
 template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
-uint8_t ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mBuffer[PWM_BUFFER_COUNT];
+uint8_t ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mBuffer[PWM_BUFFER_SIZE];
 template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
 CMinWait<WAIT_TIME> ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mWait;
 
