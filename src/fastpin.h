@@ -251,6 +251,9 @@ template<uint8_t port> struct __FL_PORT_INFO {
 	static const void *portAddr() { return NULL; }
 };
 
+template <typename T> T* addressOf(T &t) { return &t; }
+template <typename T> T* addressOf(T *t) { return t; }
+
 // Give us our instantiations for defined ports - we're going to abuse this later for
 // auto discovery of pin/port mappings for new variants.  Use _FL_DEFINE_PORT for ports that
 // are numeric in nature, e.g. GPIO0, GPIO1.  Use _FL_DEFINE_PORT3 for ports that are letters.
@@ -260,14 +263,14 @@ template<uint8_t port> struct __FL_PORT_INFO {
 	static bool hasPort() { return 1; } \
 	static const char *portName() { return #L; } \
 	typedef BASE __t_baseType;  \
-	static const void *portAddr() { return (void*)&__t_baseType::r(); } };
+	static const void *portAddr() { return (void*)addressOf(__t_baseType::r()); } };
 
 
 #define _FL_DEFINE_PORT3(L, LC, BASE) template<> struct __FL_PORT_INFO<LC> { \
 	static bool hasPort() { return 1; } \
 	static const char *portName() { return #L; } \
 	typedef BASE __t_baseType;  \
-	static const void *portAddr() { return (void*)&__t_baseType::r(); } };
+	static const void *portAddr() { return (void*)addressOf(__t_baseType::r()); } };
 
 FASTLED_NAMESPACE_END
 
