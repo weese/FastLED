@@ -93,8 +93,9 @@ protected:
         mLast = mBuffer;
         mLastBit = 0;
 
-        ASSERT(!pixels.has(FASTLED_PARTICLE_MAXIMUM_PIXELS_PER_STRING + 1))
-
+    #ifdef ASSERT
+        ASSERT(!pixels.has(FASTLED_PARTICLE_MAXIMUM_PIXELS_PER_STRING + 1));
+    #endif
         // Setup the pixel controller and load/scale the first byte
         pixels.preStepFirstByteDithering();
         register uint8_t b = pixels.loadAndScale0();

@@ -62,4 +62,6 @@ typedef volatile       uint8_t RwReg; /**< Read-Write 8-bit register (volatile u
 #define F_CPU 72000000
 #endif
 
+#define CLOCKLESS_FREQUENCY 4000000 // the NRF52 has EasyDMA for PWM module at 16MHz
+
 #endif
