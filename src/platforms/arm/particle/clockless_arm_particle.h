@@ -15,13 +15,11 @@ FASTLED_NAMESPACE_BEGIN
 #define FASTLED_PARTICLE_MAXIMUM_PIXELS_PER_STRING 256
 #endif
 
-template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER = RGB, int XTRA0 = 0, bool FLIP = false, int WAIT_TIME = 50>
+template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER = RGB, int XTRA0 = 0, bool FLIP = false, int WAIT_TIME = 9>
 class ClocklessController : public CPixelLEDController<RGB_ORDER> {
     typedef typename FastPin<DATA_PIN>::port_ptr_t data_ptr_t;
     typedef typename FastPin<DATA_PIN>::port_t data_t;
 
-    data_t mPinMask;
-    data_ptr_t mPort;
     static CMinWait<WAIT_TIME> mWait;
 
 private:
@@ -39,6 +37,7 @@ private:
     static uint8_t mBuffer[PWM_BUFFER_SIZE];
     static uint8_t *mLast;
     static uint8_t mLastBit;
+    static volatile bool mBusy;
 
 public:
     virtual void init() {
@@ -46,6 +45,7 @@ public:
         FASTLED_PARTICLE_CLOCKLESS_SPI.setClockSpeed(4, MHZ);
         FASTLED_PARTICLE_CLOCKLESS_SPI.setDataMode(SPI_MODE3);
         FASTLED_PARTICLE_CLOCKLESS_SPI.setBitOrder(MSBFIRST);
+        mBusy = false;
     }
 
   	virtual uint16_t getMaxRefreshRate() const { return 400; }
@@ -54,7 +54,6 @@ protected:
     virtual void showPixels(PixelController<RGB_ORDER> & pixels) {
         mWait.wait();
         showRGBInternal(pixels);
-        mWait.mark();
     }
 
     template<int BITS> __attribute__ ((always_inline)) inline static void writeBits(register uint8_t & b)  {
@@ -85,7 +84,7 @@ protected:
         }
     }
 
-    static void spiDMACallback() {}
+    static void spiDMACallback() { mWait.mark(); mBusy = false; }
 
     // This method is made static to force making register Y available to use for data on AVR - if the method is non-static, then
     // gcc will use register Y for the this pointer.
@@ -99,6 +98,9 @@ protected:
         // Setup the pixel controller and load/scale the first byte
         pixels.preStepFirstByteDithering();
         register uint8_t b = pixels.loadAndScale0();
+
+        while (mBusy) {};
+        mBusy = true;
 
         while(pixels.has(1)) {
             pixels.stepDithering();
@@ -116,18 +118,21 @@ protected:
             b = pixels.advanceAndLoadAndScale0();
         };
 
+        // FASTLED_PARTICLE_CLOCKLESS_SPI
         FASTLED_PARTICLE_CLOCKLESS_SPI.transfer(mBuffer, NULL, mLast - mBuffer + ((mLastBit + 7) >> 3), spiDMACallback);
     }
 };
 
 template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
+CMinWait<WAIT_TIME> ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mWait;
+template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
+uint8_t ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mBuffer[PWM_BUFFER_SIZE];
+template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
 uint8_t* ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mLast = NULL;
 template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
 uint8_t ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mLastBit = 0;
 template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
-uint8_t ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mBuffer[PWM_BUFFER_SIZE];
-template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
-CMinWait<WAIT_TIME> ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mWait;
+volatile bool ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mBusy = false;
 
 FASTLED_NAMESPACE_END
 

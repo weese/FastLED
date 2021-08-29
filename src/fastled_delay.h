@@ -11,7 +11,7 @@ FASTLED_NAMESPACE_BEGIN
 /// Class to ensure that a minimum amount of time has kicked since the last time run - and delay if not enough time has passed yet
 /// this should make sure that chipsets that have
 template<int WAIT> class CMinWait {
-	uint16_t mLastMicros;
+	volatile uint16_t mLastMicros;
 
 public:
 	CMinWait() { mLastMicros = 0; }
