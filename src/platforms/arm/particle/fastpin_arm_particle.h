@@ -63,25 +63,25 @@ typedef volatile uint8_t & reg8_t;
 
 // _IO32(A); _IO32(B); _IO32(C); _IO32(D); _IO32(E); _IO32(F); _IO32(G);
     #define MAX_PIN 19
-    _DEFPIN_ARM(0, 7, B);
-    _DEFPIN_ARM(1, 6, B);
-    _DEFPIN_ARM(2, 5, B);
-    _DEFPIN_ARM(3, 4, B);
-    _DEFPIN_ARM(4, 3, B);
-    _DEFPIN_ARM(5, 15, A);
-    _DEFPIN_ARM(6, 14, A);
-    _DEFPIN_ARM(7, 13, A);
-    _DEFPIN_ARM(10, 5, C);
-    _DEFPIN_ARM(11, 3, C);
-    _DEFPIN_ARM(12, 2, C);
-    _DEFPIN_ARM(13, 5, A);
-    _DEFPIN_ARM(14, 6, A);
-    _DEFPIN_ARM(15, 7, A);
-    _DEFPIN_ARM(16, 4, A);
-    _DEFPIN_ARM(17, 0, A);
-    _DEFPIN_ARM(18, 10, A);
-    _DEFPIN_ARM(19, 9, A);
-    _DEFPIN_ARM(20, 7, C);
+    _FL_DEFPIN(0, 7, B);
+    _FL_DEFPIN(1, 6, B);
+    _FL_DEFPIN(2, 5, B);
+    _FL_DEFPIN(3, 4, B);
+    _FL_DEFPIN(4, 3, B);
+    _FL_DEFPIN(5, 15, A);
+    _FL_DEFPIN(6, 14, A);
+    _FL_DEFPIN(7, 13, A);
+    _FL_DEFPIN(10, 5, C);
+    _FL_DEFPIN(11, 3, C);
+    _FL_DEFPIN(12, 2, C);
+    _FL_DEFPIN(13, 5, A);
+    _FL_DEFPIN(14, 6, A);
+    _FL_DEFPIN(15, 7, A);
+    _FL_DEFPIN(16, 4, A);
+    _FL_DEFPIN(17, 0, A);
+    _FL_DEFPIN(18, 10, A);
+    _FL_DEFPIN(19, 9, A);
+    _FL_DEFPIN(20, 7, C);
 
   #elif PLATFORM_ID == PLATFORM_ARGON
     #if defined(__FASTPIN_ARM_NRF52_VARIANT_FOUND)
