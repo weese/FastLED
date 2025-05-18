@@ -19,6 +19,7 @@
 
 // Particle fixes
 // #if defined(PARTICLE)
+#if __has_include("Particle.h")
   #include "Particle.h"
 
 	// Log message to cloud, message is a printf-formatted string
@@ -52,7 +53,7 @@
 	#define FASTLED_NAMESPACE_END }
 	#define FASTLED_USING_NAMESPACE using namespace NSFastLED;
 	#define FASTLED_NAMESPACE NSFastLED
-// #endif
+#endif
 
 #ifndef __PROG_TYPES_COMPAT__
 #define __PROG_TYPES_COMPAT__
