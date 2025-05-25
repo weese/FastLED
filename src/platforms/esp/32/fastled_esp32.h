@@ -28,7 +28,8 @@
 #define ClocklessController ClocklessSpiWs2812Controller
 #define FASTLED_HAS_CLOCKLESS 1
 #else
-#warning "No clockless drivers defined for ESP32 chip. You won't be able to drive WS2812 and other clockless chipsets".
+#include "clockless_spi_esp32c3.h"
+// #warning "No clockless drivers defined for ESP32 chip. You won't be able to drive WS2812 and other clockless chipsets".
 #endif
 
 #endif
