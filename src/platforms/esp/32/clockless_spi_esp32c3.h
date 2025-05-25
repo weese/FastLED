@@ -39,11 +39,9 @@ private:
     static uint8_t mBuffer[PWM_BUFFER_SIZE];
     static uint8_t *mLast;
     static uint8_t mLastBit;
-    static volatile bool mBusy;
+    
     static spi_transaction_t transaction;
-
     static spi_device_handle_t spi;
-
 
 public:
     virtual void init() {
@@ -86,13 +84,14 @@ public:
             return;
         }
         
-        // sent dummy packet to set MOSI to low
+        // send dummy packet to set MOSI to low
         mBuffer[0] = 0;
         transaction.length = 1;
         transaction.tx_buffer = mBuffer;
-        ret = spi_device_transmit(spi, &transaction);
-
-        mBusy = false;
+        ret = spi_device_queue_trans(spi, &transaction, 100);
+        if (ret != ESP_OK) {
+            Serial.printf("Queue failed: %d\n", ret);
+        }
     }
 
   	virtual uint16_t getMaxRefreshRate() const { return 400; }
@@ -169,8 +168,6 @@ protected:
         if (ret != ESP_OK) {
             Serial.printf("Queue failed: %d\n", ret);
         }
-
-        mBusy = true;
     }
 };
 
@@ -182,8 +179,6 @@ template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, boo
 uint8_t* ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mLast = NULL;
 template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
 uint8_t ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mLastBit = 0;
-template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
-volatile bool ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::mBusy = false;
 template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
 spi_device_handle_t ClocklessController<DATA_PIN, T1, T2, T3, RGB_ORDER, XTRA0, FLIP, WAIT_TIME>::spi = NULL;
 template <int DATA_PIN, int T1, int T2, int T3, EOrder RGB_ORDER, int XTRA0, bool FLIP, int WAIT_TIME>
