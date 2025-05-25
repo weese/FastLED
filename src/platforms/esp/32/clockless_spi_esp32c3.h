@@ -33,7 +33,7 @@ private:
     static const uint8_t  TOP = (uint16_t)((T1+T2+T3 + DIVIDER / 2) / DIVIDER);
 
     static const uint8_t  BITS_PER_PIXEL   = (8 + XTRA0) * 3; // NOTE: 3 means RGB only...
-    static const uint16_t PWM_BUFFER_SIZE = (uint16_t)((TOP * BITS_PER_PIXEL * FASTLED_ESP32C3_MAXIMUM_PIXELS_PER_STRING + 7) / 8);
+    static const uint16_t PWM_BUFFER_SIZE = (uint16_t)((TOP * BITS_PER_PIXEL * FASTLED_ESP32C3_MAXIMUM_PIXELS_PER_STRING + 7) / 8) + 1;
 
     // may as well be static, as can only attach one LED string per DATA_PIN....
     static uint8_t mBuffer[PWM_BUFFER_SIZE];
@@ -55,7 +55,7 @@ public:
             .data5_io_num = GPIO_NUM_NC,
             .data6_io_num = GPIO_NUM_NC,
             .data7_io_num = GPIO_NUM_NC,
-            .max_transfer_sz = PWM_BUFFER_SIZE,
+            .max_transfer_sz = 4096,
             .flags = SPICOMMON_BUSFLAG_MOSI,
         };
 
